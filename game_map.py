@@ -8,9 +8,8 @@ class GameMap:
 	def __init__(self, width, height):
 		self.width = width
 		self.height = height
-		self.tiles = np.full((width, height), fill_value=tile_types.floor, order='F')
-
-		self.tiles[30:33, 22] = tile_types.wall
+		# Fylder hele mappet op med vægge.
+		self.tiles = np.full((width, height), fill_value=tile_types.wall, order='F')
 
 	def in_bounds(self, x, y) -> bool:
 		"""Returner True hvis (X, Y) er inden i mappet.
