@@ -31,11 +31,12 @@ class Engine:
 		for event in events:
 			# Hvis event_handler.dispatch(event) is not type(None), set action to be event_handler.dispatch(event) value
 			if (action := self.event_handler.dispatch(event)) is not None:
-				if isinstance(action, MovementAction):  # # if action is an instance of MovementAction, do ...
-					if self.game_map.tiles['walkable'][self.player.x + action.dir_x, self.player.y + action.dir_y]:
-						self.player.move(dir_x=action.dir_x, dir_y=action.dir_y)
-				elif isinstance(action, EscapeAction):
-					raise SystemExit(0)
+				action.perform(self, self.player)
+				# if isinstance(action, MovementAction):  # # if action is an instance of MovementAction, do ...
+				# 	if self.game_map.tiles['walkable'][self.player.x + action.dir_x, self.player.y + action.dir_y]:
+				# 		self.player.move(dir_x=action.dir_x, dir_y=action.dir_y)
+				# elif isinstance(action, EscapeAction):
+				# 	raise SystemExit(0)
 			else:
 				continue
 
