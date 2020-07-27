@@ -24,7 +24,7 @@ class EscapeAction(Action):
 
 
 class MovementAction(Action):
-    def __init__(self, dir_x : int, dir_y : int):
+    def __init__(self, dir_x: int, dir_y: int):
         """Initialisering
 
         Args:
