@@ -11,6 +11,9 @@ class GameMap:
 		# Fylder hele mappet op med vægge.
 		self.tiles = np.full((width, height), fill_value=tile_types.wall, order='F')
 
+		self.visible = np.full((width, height), fill_value=False, order="F")
+		self.explored = np.full((width, height), fill_value=False, order="F")
+
 	def in_bounds(self, x, y) -> bool:
 		"""Returner True hvis (X, Y) er inden i mappet.
 
@@ -23,4 +26,17 @@ class GameMap:
 		return 0 <= x < self.width and 0 <= y < self.height
 
 	def render(self, console):
-		console.tiles_rgb[0:self.width, 0:self.height] = self.tiles['dark']
+		"""Render mappet
+		Hvis en `tile` er i det `visible` array, så bliver det tegnet med lyse farver, & vice versa.
+		Default værdien er `SHROUD`
+
+		np.select allows us to conditionally draw the tiles we want, based on what’s specified in condlist. Since we’re passing [self.visible, self.explored], it will check if the tile being drawn is either visible, then explored. If it’s visible, it uses the first value in choicelist, in this case, self.tiles["light"]. If it’s not visible, but explored, then we draw self.tiles["dark"]. If neither is true, we use the default argument, which is just the SHROUD we defined earlier.
+
+		Args:
+			console (Console): Main console
+		"""
+		console.tiles_rgb[0:self.width, 0:self.height] = np.select(
+			condlist=[self.visible, self.explored],
+			choicelist=[self.tiles['light'], self.tiles['dark']],
+			default=tile_types.SHROUD,
+		)

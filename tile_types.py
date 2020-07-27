@@ -18,6 +18,7 @@ tile_dt = np.dtype(
 		('walkable', np.bool),  # Hvis `tile` kan gås på
 		('transparent', np.bool),  # Hvis `tile` blokerer FOV
 		('dark', graphic_dt),  # Graphics for `tile` når ikke i FOV
+		('light', graphic_dt),  # Graphics når tile er i FOV
 	]
 )
 
@@ -27,6 +28,7 @@ def new_tile(
 	walkable: int,
 	transparent: int,
 	dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
+	light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
 ):
 	"""* == Parameters after “*” or “*identifier” are keyword-only parameters and may only be passed used keyword arguments.
 
@@ -37,8 +39,11 @@ def new_tile(
 	Returns:
 		[type]: [description]
 	"""
-	return np.array((walkable, transparent, dark), dtype=tile_dt)
+	return np.array((walkable, transparent, dark, light), dtype=tile_dt)
 
+
+# SHROUD for ikke opdagede `tiles`
+SHROUD = np.array((ord(' '), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
 
 floor = new_tile(
 	walkable=True,
@@ -47,6 +52,11 @@ floor = new_tile(
 		ord('.'),  # `ord("")` returner int værdi af unicode
 		(255, 255, 255),
 		(50, 50, 150)
+	),
+	light=(
+		ord('.'),
+		(255, 255, 255),
+		(200, 180, 50)
 	),
 )
 
@@ -57,5 +67,10 @@ wall = new_tile(
 		ord('#'),
 		(255, 255, 255),
 		(0, 0, 100)
+	),
+	light=(
+		ord('#'),
+		(255, 255, 255),
+		(130, 110, 50)
 	),
 )

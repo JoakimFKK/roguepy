@@ -1,5 +1,6 @@
 from tcod.context import Context
 from tcod.console import Console
+from tcod.map import compute_fov
 
 from actions import EscapeAction, MovementAction
 from entity import Entity
@@ -20,6 +21,7 @@ class Engine:
 		self.event_handler = event_handler
 		self.game_map = game_map
 		self.player = player
+		self.update_fov()
 
 	def handle_events(self, events):
 		""" EventHandler.dispatch() sender `event` tester hvilken Eventhandler.ev_* funktion er en match.
@@ -32,13 +34,20 @@ class Engine:
 			# Hvis event_handler.dispatch(event) is not type(None), set action to be event_handler.dispatch(event) value
 			if (action := self.event_handler.dispatch(event)) is not None:
 				action.perform(self, self.player)
-				# if isinstance(action, MovementAction):  # # if action is an instance of MovementAction, do ...
-				# 	if self.game_map.tiles['walkable'][self.player.x + action.dir_x, self.player.y + action.dir_y]:
-				# 		self.player.move(dir_x=action.dir_x, dir_y=action.dir_y)
-				# elif isinstance(action, EscapeAction):
-				# 	raise SystemExit(0)
+
+				self.update_fov()
 			else:
 				continue
+
+	def update_fov(self):
+		""" Opdater `game_map` baseret på spillerens FOV"""
+		self.game_map.visible[:] = compute_fov(
+			self.game_map.tiles['transparent'],
+			(self.player.x, self.player.y),
+			radius=8,
+		)
+		# Hvis en `tile` er synlig, sæt den til `explored`
+		self.game_map.explored |= self.game_map.visible
 
 	def render(self, console, context):
 		"""Tegner konsolen
@@ -49,7 +58,9 @@ class Engine:
 		"""
 		self.game_map.render(console)
 		for entity in self.entities:
-			console.print(entity.x, entity.y, entity.char, fg=entity.color)
+			# Tegn kun entities som er i FOV
+			if self.game_map.visible[entity.x, entity.y]:
+				console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
 		context.present(console)  # Hvad der opdaterer konsolerne
 		console.clear()  # For at nulstille konsolen, og tegne på ny.
