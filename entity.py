@@ -23,6 +23,7 @@ class Entity:
 		 Args:
 	 		dir_x (int): Direction X-akse
  			dir_y (int): Direction Y-akse
- 		"""
+		"""
 		self.x += dir_x
 		self.y += dir_y
+		print(f"{self.x}, {self.y}")

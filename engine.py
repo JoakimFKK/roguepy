@@ -1,15 +1,14 @@
-from typing import Set, Iterable, Any
-
 from tcod.context import Context
 from tcod.console import Console
 
 from actions import EscapeAction, MovementAction
 from entity import Entity
+from game_map import GameMap
 from input_handlers import EventHandler
 
 
 class Engine:
-	def __init__(self, entities, event_handler, player):
+	def __init__(self, entities, event_handler, game_map, player):
 		""" Engine sørger for game logic
 
 		 Args:
@@ -19,6 +18,7 @@ class Engine:
 		"""
 		self.entities = entities
 		self.event_handler = event_handler
+		self.game_map = game_map
 		self.player = player
 
 	def handle_events(self, events):
@@ -32,7 +32,8 @@ class Engine:
 			# Hvis event_handler.dispatch(event) is not type(None), set action to be event_handler.dispatch(event) value
 			if (action := self.event_handler.dispatch(event)) is not None:
 				if isinstance(action, MovementAction):  # # if action is an instance of MovementAction, do ...
-					self.player.move(dir_x=action.dir_x, dir_y=action.dir_y)
+					if self.game_map.tiles['walkable'][self.player.x + action.dir_x, self.player.y + action.dir_y]:
+						self.player.move(dir_x=action.dir_x, dir_y=action.dir_y)
 				elif isinstance(action, EscapeAction):
 					raise SystemExit(0)
 			else:
@@ -45,6 +46,7 @@ class Engine:
 			console (Console): Konsolen der skal tegnes
 			context (context): TODO
 		"""
+		self.game_map.render(console)
 		for entity in self.entities:
 			console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
