@@ -9,7 +9,7 @@ from input_handlers import EventHandler
 
 
 class Engine:
-	def __init__(self, entities, event_handler, game_map, player):
+	def __init__(self, event_handler, game_map, player):
 		""" Engine sørger for game logic
 
 		 Args:
@@ -17,7 +17,6 @@ class Engine:
 			event_handler (EventHandler): Gi'r jo sig selv.
 			player (Entity): Godt nok, med lykke og held.
 		"""
-		self.entities = entities
 		self.event_handler = event_handler
 		self.game_map = game_map
 		self.player = player
@@ -57,10 +56,6 @@ class Engine:
 			context (context): TODO
 		"""
 		self.game_map.render(console)
-		for entity in self.entities:
-			# Tegn kun entities som er i FOV
-			if self.game_map.visible[entity.x, entity.y]:
-				console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
 		context.present(console)  # Hvad der opdaterer konsolerne
 		console.clear()  # For at nulstille konsolen, og tegne på ny.

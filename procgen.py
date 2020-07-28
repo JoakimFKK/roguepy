@@ -59,9 +59,23 @@ def generate_dungeon(
 	room_max_size: int,
 	map_width: int,
 	map_height: int,
+	max_monsters_per_room: int,
 	player,
 ) -> GameMap:
-	dungeon = GameMap(map_width, map_height)
+	"""Genererer et Dungeon Map
+
+	 Args:
+		 max_rooms (int): Maks antal af rum i dungeon
+		 room_min_size (int): Mindste størrelse af et rum
+		 room_max_size (int): Største størrelse af et rum
+		 map_width (int): Hele Dungeons bredde
+		 map_height (int): Hele Dungeons højde
+		 player ([type]): Player entity
+
+	 Returns:
+		GameMap: Området hvor PCen er.
+	 """
+	dungeon = GameMap(map_width, map_height, entities=[player, ])
 	rooms = []
 
 	for room in range(max_rooms):
@@ -84,9 +98,35 @@ def generate_dungeon(
 			for x, y in tunnel_between(rooms[-1].center, new_room.center):
 				dungeon.tiles[x, y] = tile_types.floor
 
+		place_entities(new_room, dungeon, max_monsters_per_room)
+
 		rooms.append(new_room)
 
 	return dungeon
+
+
+def place_entities(room, dungeon, maximum_monsters):
+	"""Funktion som finder X og Y koordinater til placering og spawning af NPCer.
+
+	Hvis en `entity`s X/Y-koordinat ville være oven på en andens så vil den ikke spawnes.
+	Der er også en 80% chance for at en anden type `monster` vil spawnes ved hver spawn.
+
+	Args:
+		room ([type]): [description]
+		dungeon ([type]): [description]
+		maximum_monsters ([type]): [description]
+	"""
+	number_of_monsters = random.randint(0, maximum_monsters)
+
+	for _ in range(number_of_monsters):
+		x = random.randint(room.pos_x + 1, room.room_width)
+		y = random.randint(room.pos_y + 1, room.room_height)
+
+		if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+			if random.random() < 0.8:
+				pass  # TODO Orc boy
+			else:
+				pass  # TODO le trolle face X-D
 
 
 def tunnel_between(start, end):

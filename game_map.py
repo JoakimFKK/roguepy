@@ -5,9 +5,10 @@ import tile_types
 
 
 class GameMap:
-	def __init__(self, width, height):
+	def __init__(self, width, height, entities):
 		self.width = width
 		self.height = height
+		self.entities = entities
 		# Fylder hele mappet op med vægge.
 		self.tiles = np.full((width, height), fill_value=tile_types.wall, order='F')
 
@@ -27,12 +28,12 @@ class GameMap:
 
 	def render(self, console):
 		"""Render mappet
-		Hvis en `tile` er i det `visible` array, så bliver det tegnet med lyse farver, & vice versa.
-		Default værdien er `SHROUD`
+		 Hvis en `tile` er i det `visible` array, så bliver det tegnet med lyse farver, & vice versa.
+		 Default værdien er `SHROUD`
 
-		np.select allows us to conditionally draw the tiles we want, based on what’s specified in condlist. Since we’re passing [self.visible, self.explored], it will check if the tile being drawn is either visible, then explored. If it’s visible, it uses the first value in choicelist, in this case, self.tiles["light"]. If it’s not visible, but explored, then we draw self.tiles["dark"]. If neither is true, we use the default argument, which is just the SHROUD we defined earlier.
+		 np.select allows us to conditionally draw the tiles we want, based on what’s specified in condlist. Since we’re passing [self.visible, self.explored], it will check if the tile being drawn is either visible, then explored. If it’s visible, it uses the first value in choicelist, in this case, self.tiles["light"]. If it’s not visible, but explored, then we draw self.tiles["dark"]. If neither is true, we use the default argument, which is just the SHROUD we defined earlier.
 
-		Args:
+		 Args:
 			console (Console): Main console
 		"""
 		console.tiles_rgb[0:self.width, 0:self.height] = np.select(
@@ -40,3 +41,8 @@ class GameMap:
 			choicelist=[self.tiles['light'], self.tiles['dark']],
 			default=tile_types.SHROUD,
 		)
+
+		for entity in self.entities:
+			# Tegn kun entities som er inden i FOV
+			if self.visible[entity.x, entity.y]:
+				console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
