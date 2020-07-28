@@ -12,22 +12,31 @@ if TYPE_CHECKING:
 
 
 class GameMap:
-	def __init__(self, width, height, entities: Iterable[Entity] = ()):
+	def __init__(self, engine, width, height, entities: Iterable[Entity] = ()):
+		self.engine = engine
 		self.width = width
 		self.height = height
 		self.entities = set(entities)
 		# Fylder hele mappet op med vægge.
 		self.tiles = np.full((width, height), fill_value=tile_types.wall, order='F')
 
-		self.visible = np.full((width, height), fill_value=False, order="F")
-		self.explored = np.full((width, height), fill_value=False, order="F")
+		self.visible = np.full(
+			(width, height), fill_value=False, order="F"
+		)  # Tiles spilleren kan se
+		self.explored = np.full(
+			(width, height), fill_value=False, order="F"
+		)  # Tiles spilleren har udforsket
 
 	def get_blocking_entity_at_location(self, location_x: int, location_y: int):
 		for entity in self.entities:
-			if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+			if (
+				entity.blocks_movement
+				and entity.x == location_x
+				and entity.y == location_y
+			):
 				return entity
-
 		return None
+
 
 	def in_bounds(self, x, y) -> bool:
 		"""Returner True hvis (X, Y) er inden i mappet.
@@ -50,7 +59,7 @@ class GameMap:
 		 Args:
 			console (Console): Main console
 		"""
-		console.tiles_rgb[0:self.width, 0:self.height] = np.select(
+		console.tiles_rgb[0: self.width, 0: self.height] = np.select(
 			condlist=[self.visible, self.explored],
 			choicelist=[self.tiles['light'], self.tiles['dark']],
 			default=tile_types.SHROUD,

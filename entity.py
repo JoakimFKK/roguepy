@@ -1,4 +1,4 @@
-from typing import Tuple, TypeVar, TYPE_CHECKING
+from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
 import copy
 
 if TYPE_CHECKING:
@@ -9,9 +9,12 @@ T = TypeVar('T', bound="Entity")
 
 class Entity:
 	""" A generic object to represent players, enemies, items, etc.
-	 """
+	"""
+	game_map: GameMap
+
 	def __init__(
 		self,
+		game_map: Optional[GameMap] = None,
 		x: int = 0,
 		y: int = 0,
 		char: str = "?",
@@ -35,6 +38,10 @@ class Entity:
 		self.color = color
 		self.name = name
 		self.blocks_movement = blocks_movement
+		if game_map:
+			# Hvis game_map er tom, så bliver den sat senere
+			self.game_map = game_map
+			game_map.entities.add(self)
 
 	def spawn(self: T, game_map, x: int, y: int) -> T:
 		"""Spawner en kopi af instancen til en given position
@@ -50,8 +57,25 @@ class Entity:
 			"""
 		clone = copy.deepcopy(self)
 		clone.x, clone.y = x, y
+		clone.game_map = game_map
 		game_map.entities.add(clone)
 		return clone
+
+	def place(self, x, y, game_map: Optional[GameMap], = None):
+		"""Placer denne entity på en ny lokation. Handles moving across GameMaps
+
+		Args:
+			x ([type]): [description]
+			y ([type]): [description]
+			game_map (Optional[GameMap]): [description]
+		"""
+		self.x = x
+		self.y = y
+		if game_map:
+			if hasattr(self, "game_map"):  # Hvis attributen ikke er initialiseret
+				self.game_map.entities.remove(self)
+			self.game_map = game_map
+			game_map.entities.add(self)
 
 	def move(self, dir_x, dir_y):
 		"""Bevæger entity.
