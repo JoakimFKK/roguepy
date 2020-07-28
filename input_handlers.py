@@ -3,15 +3,20 @@
 import tcod.event
 
 # Local import
-from actions import Action, EscapeAction, MovementAction
+from actions import (
+	Action,
+	BumpAction,
+	EscapeAction,
+)
+
 
 class EventHandler(tcod.event.EventDispatch[Action]):
-	"""  """
-	def ev_quit(self, event : tcod.event.Quit):
+	""" !TODO! """
+	def ev_quit(self, event: tcod.event.Quit):
 		""" Override af EventHandler.ev_quit, sørger for lukning af programmet. """
 		raise SystemExit(0)  # `SystemExit(0)` lukker programmet ned uden at give den normale fejl besked.
 
-	def ev_keydown(self, event : tcod.event.KeyDown):
+	def ev_keydown(self, event: tcod.event.KeyDown):
 		""" Registering af key presses.
 		 Returnerer type `None` hvis invalid key press.
 		 """
@@ -19,15 +24,16 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 		key = event.sym
 
 		if key == tcod.event.K_UP:
-			action = MovementAction(dir_x=0, dir_y=-1)
+			action = BumpAction(dir_x=0, dir_y=-1)
 		elif key == tcod.event.K_DOWN:
-			action = MovementAction(dir_x=0, dir_y=1)
+			action = BumpAction(dir_x=0, dir_y=1)
 		elif key == tcod.event.K_LEFT:
-			action = MovementAction(dir_x=-1, dir_y=0)
+			action = BumpAction(dir_x=-1, dir_y=0)
 		elif key == tcod.event.K_RIGHT:
-			action = MovementAction(dir_x=1, dir_y=0)
+			action = BumpAction(dir_x=1, dir_y=0)
 
 		elif key == tcod.event.K_ESCAPE:
 			action = EscapeAction()
 
+		# Hvis en ikke valid tast blev trykket
 		return action

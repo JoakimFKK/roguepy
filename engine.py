@@ -22,6 +22,10 @@ class Engine:
 		self.player = player
 		self.update_fov()
 
+	def handle_enemy_turns(self):
+		for entity in self.game_map.entities - {self.player}:
+			print(f"The {entity.name} questions the decisions that lead them to this point.")
+
 	def handle_events(self, events):
 		""" EventHandler.dispatch() sender `event` tester hvilken Eventhandler.ev_* funktion er en match.
 		 Hvis det er `ev_keydown`, returneres der et `Action` objekt som vi kan bruge kalde.
@@ -33,7 +37,7 @@ class Engine:
 			# Hvis event_handler.dispatch(event) is not type(None), set action to be event_handler.dispatch(event) value
 			if (action := self.event_handler.dispatch(event)) is not None:
 				action.perform(self, self.player)
-
+				self.handle_enemy_turns()
 				self.update_fov()
 			else:
 				continue

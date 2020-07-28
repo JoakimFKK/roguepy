@@ -5,6 +5,7 @@ import random
 import tcod
 
 from game_map import GameMap
+import entity_factories
 import tile_types
 
 
@@ -119,14 +120,15 @@ def place_entities(room, dungeon, maximum_monsters):
 	number_of_monsters = random.randint(0, maximum_monsters)
 
 	for _ in range(number_of_monsters):
-		x = random.randint(room.pos_x + 1, room.room_width)
-		y = random.randint(room.pos_y + 1, room.room_height)
+		# Note +/-1 for ikke at spawne entities inde i væg
+		x = random.randint(room.pos_x + 1, room.room_width - 1)
+		y = random.randint(room.pos_y + 1, room.room_height - 1)
 
 		if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
 			if random.random() < 0.8:
-				pass  # TODO Orc boy
+				entity_factories.orc.spawn(dungeon, x, y)
 			else:
-				pass  # TODO le trolle face X-D
+				entity_factories.troll.spawn(dungeon, x, y)
 
 
 def tunnel_between(start, end):

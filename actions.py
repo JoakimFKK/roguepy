@@ -23,19 +23,30 @@ class EscapeAction(Action):
         raise SystemExit(0)
 
 
-class MovementAction(Action):
+class ActionWithDirection(Action):
     def __init__(self, dir_x: int, dir_y: int):
-        """Initialisering
-
-        Args:
-            dir_x (int): Direktion på X-aksen
-            dir_y (int): Direktion på Y-aksen
-        """
-        super().__init__()  # Kalder på den klasse vi arver fras `__init__` funktion.
+        super().__init__()
 
         self.dir_x = dir_x
         self.dir_y = dir_y
 
+    def perform(self, engine, entity):
+        raise NotImplementedError
+
+
+class MeleeAction(ActionWithDirection):
+    def perform(self, engine, entity):
+        dest_x = entity.x + self.dir_x
+        dest_y = entity.y + self.dir_y
+
+        target = engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+        if not target:  # Hvis target er None
+            return  # Ingen entities at angribe
+
+        print(f"You passionately brush {target.name}'s cheek, making them very uncomfortable.")
+
+
+class MovementAction(ActionWithDirection):
     def perform(self, engine, entity):
         dest_x = entity.x + self.dir_x
         dest_y = entity.y + self.dir_y
@@ -44,5 +55,18 @@ class MovementAction(Action):
             return  # Destination ikke indenfor mappet
         if not engine.game_map.tiles['walkable'][dest_x, dest_y]:
             return  # Destination er blokeret.
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return  # Destination er blokeret af en entity
 
         entity.move(self.dir_x, self.dir_y)
+
+
+class BumpAction(ActionWithDirection):
+    def perform(self, engine, entity):
+        dest_x = entity.x + self.dir_x
+        dest_y = entity.y + self.dir_y
+
+        if engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            return MeleeAction(self.dir_x, self.dir_y).perform(engine, entity)
+        else:
+            return MovementAction(self.dir_x, self.dir_y).perform(engine, entity)

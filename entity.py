@@ -17,7 +17,7 @@ class Entity:
 		char: str = "?",
 		color: Tuple[int, int, int] = (255, 255, 255),
 		name: str = "<Unnamed>",
-		blocks_movement: bool = False,
+		blocks_movement: bool = False,  # todo Ændr navnet så det er mere åbenlyst.
 	):
 		"""[summary]
 
@@ -27,7 +27,7 @@ class Entity:
 			char (str, optional): Hvilket char `entity`en bliver tegnet med. Defaults to "?".
 			color (Tuple[int, int, int], optional): Farven på `entity` i RGB. Defaults to (255, 255, 255).
 			name (str, optional): Navnet på `entity`. Defaults to "<Unnamed>".
-			blocks_movement (bool, optional): Beskriver om `entity`en kan bevæge sig. Defaults to False.
+			blocks_movement (bool, optional): Beskriver hvis `entity` blokerer movement. Defaults to False.
 		"""
 		self.x = x
 		self.y = y
@@ -36,7 +36,7 @@ class Entity:
 		self.name = name
 		self.blocks_movement = blocks_movement
 
-	def spawn(self: T, game_map: GameMap, x: int, y: int) -> T:
+	def spawn(self: T, game_map, x: int, y: int) -> T:
 		"""Spawner en kopi af instancen til en given position
 
 			Args:
@@ -62,4 +62,4 @@ class Entity:
 			"""
 		self.x += dir_x
 		self.y += dir_y
-		print(f"{self.x}, {self.y}")
+		# print(f"{self.x}, {self.y}")

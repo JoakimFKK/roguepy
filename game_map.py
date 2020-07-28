@@ -1,19 +1,33 @@
+from __future__ import annotations
+
 import numpy as np
 from tcod.console import Console
 
+from typing import Iterable, Optional, TYPE_CHECKING
+
 import tile_types
+
+if TYPE_CHECKING:
+	from entity import Entity
 
 
 class GameMap:
-	def __init__(self, width, height, entities):
+	def __init__(self, width, height, entities: Iterable[Entity] = ()):
 		self.width = width
 		self.height = height
-		self.entities = entities
+		self.entities = set(entities)
 		# Fylder hele mappet op med vægge.
 		self.tiles = np.full((width, height), fill_value=tile_types.wall, order='F')
 
 		self.visible = np.full((width, height), fill_value=False, order="F")
 		self.explored = np.full((width, height), fill_value=False, order="F")
+
+	def get_blocking_entity_at_location(self, location_x: int, location_y: int):
+		for entity in self.entities:
+			if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+				return entity
+
+		return None
 
 	def in_bounds(self, x, y) -> bool:
 		"""Returner True hvis (X, Y) er inden i mappet.
