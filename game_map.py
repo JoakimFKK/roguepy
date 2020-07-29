@@ -30,6 +30,10 @@ class GameMap:
 		)  # Tiles spilleren har udforsket
 
 	@property
+	def game_map(self) -> GameMap:
+		return self
+
+	@property
 	def actors(self) -> Iterator[Actor]:
 		""" Iterate igennem kortet for at finde "levende" `Actor`s """
 		yield from (
