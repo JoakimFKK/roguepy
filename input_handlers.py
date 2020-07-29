@@ -10,6 +10,8 @@ from actions import (
 	WaitAction,
 )
 
+import color
+import exceptions
 if TYPE_CHECKING:
 	from engine import Engine
 
