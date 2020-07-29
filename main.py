@@ -3,6 +3,7 @@ import copy
 
 import tcod
 
+import color
 from engine import Engine
 import entity_factories
 from procgen import generate_dungeon
@@ -14,10 +15,10 @@ def main():
     screen_height = 50  # Y-kordinat
 
     map_width = 80
-    map_height = 45
+    map_height = 43
 
-    room_max_size = 16
-    room_min_size = 8
+    room_max_size = 10
+    room_min_size = 6
     max_rooms = 30
 
     max_monsters_per_room = 2
@@ -46,6 +47,21 @@ def main():
 
     engine.update_fov()
 
+    # NOTE STOP
+    engine.message_log.add_message(
+        "STOP! You violated the law. Pay the court a fine, or serve your sentence!",
+        color.welcome_text,
+    )
+    engine.message_log.add_message(
+        "\"Go commit not alive\" is whispered throughout the dungeon.",
+        color.welcome_text,
+    )
+
+    engine.message_log.add_message(
+        "You contemplate the suggestion, and come to the conclusion that they might be on to something.",
+        color.welcome_text,
+    )
+
     with tcod.context.new_terminal(
         screen_width,
         screen_height,
@@ -55,8 +71,11 @@ def main():
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")  # `order="F"` sætter coordinat-systemet til `[x, y]`
         while True:
-            engine.render(console=root_console, context=context)
-            engine.event_handler.handle_events()
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
+
+            engine.event_handler.handle_events(context)
 
 
 if __name__ == "__main__":
