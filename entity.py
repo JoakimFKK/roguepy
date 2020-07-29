@@ -1,7 +1,13 @@
-from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
+from __future__ import annotations
+
 import copy
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
+
+from render_order import RenderOrder
 
 if TYPE_CHECKING:
+	from components.ai import BaseAI
+	from components.fighter import Fighter
 	from game_map import GameMap
 
 T = TypeVar('T', bound="Entity")
@@ -21,6 +27,7 @@ class Entity:
 		color: Tuple[int, int, int] = (255, 255, 255),
 		name: str = "<Unnamed>",
 		blocks_movement: bool = False,  # todo Ændr navnet så det er mere åbenlyst.
+		render_order: RenderOrder = RenderOrder.CORPSE,
 	):
 		"""[summary]
 
@@ -38,6 +45,7 @@ class Entity:
 		self.color = color
 		self.name = name
 		self.blocks_movement = blocks_movement
+		self.render_order = render_order
 		if game_map:
 			# Hvis game_map er tom, så bliver den sat senere
 			self.game_map = game_map
@@ -61,7 +69,7 @@ class Entity:
 		game_map.entities.add(clone)
 		return clone
 
-	def place(self, x, y, game_map: Optional[GameMap], = None):
+	def place(self, x, y, game_map: Optional[GameMap] = None):
 		"""Placer denne entity på en ny lokation. Handles moving across GameMaps
 
 		Args:
@@ -87,3 +95,36 @@ class Entity:
 		self.x += dir_x
 		self.y += dir_y
 		# print(f"{self.x}, {self.y}")
+
+
+class Actor(Entity):
+	def __init__(
+		self,
+		*,
+		x: int = 0,
+		y: int = 0,
+		char: str = '?',
+		color: Tuple[int, int, int] = (255, 255, 255),
+		name: str = '<Unnamed>',
+		ai_cls: Type[BaseAI],  # Evnen til at bevæge sig og foretage handlinger
+		fighter: Fighter,  # Evnen til at give og tage skade.
+	):
+		super().__init__(
+			x=x,
+			y=y,
+			char=char,
+			color=color,
+			name=name,
+			blocks_movement=True,  # `Actor` vil altid* blokere bevægelse
+			render_order=RenderOrder.ACTOR,
+		)
+
+		self.ai: Optional[BaseAI] = ai_cls(self)
+
+		self.fighter = fighter
+		self.fighter.entity = self
+
+	@property
+	def is_alive(self) -> bool:
+		""" Returnerer True så længe at `Actor` kan `perform` `Action`s. """
+		return bool(self.ai)

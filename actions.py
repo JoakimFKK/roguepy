@@ -1,13 +1,13 @@
 from __future__ import annotations
-from typing import Tuple, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor, Entity
 
 
 class Action:
-    def __init__(self, entity):
+    def __init__(self, entity: Actor):
         super().__init__()
         self.entity = entity
 
@@ -17,7 +17,7 @@ class Action:
         return self.entity.game_map.engine
 
 
-    def perform(self, engine, entity):
+    def perform(self):
         """Perform this action with the objects needed to determine its scope.
 
             self.engine is the scope this action is being performed in
@@ -36,8 +36,8 @@ class EscapeAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity, dir_x: int, dir_y: int):
-        super().__init__()
+    def __init__(self, entity: Actor, dir_x: int, dir_y: int):
+        super().__init__(entity)
 
         self.dir_x = dir_x
         self.dir_y = dir_y
@@ -52,22 +52,34 @@ class ActionWithDirection(Action):
         """ Returnerer den blokerendes entity på `action`s plads """
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """ Return the actor at this actions destination """
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
     def perform(self):
         raise NotImplementedError
 
 
 class MeleeAction(ActionWithDirection):
-    def perform(self, engine, entity):
-        target = self.blocking_entity
+    def perform(self):
+        target = self.target_actor
 
-        if not target:  # Hvis target er None
-            return  # Ingen entities at angribe
+        if not target:
+            return
 
-        print(f"You passionately brush {target.name}'s cheek, making them very uncomfortable.")
+        damage = self.entity.fighter.power - target.fighter.defense
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if damage > 0:
+            print(f"{attack_desc} for {damage} hit points.")
+            target.fighter.hp -= damage
+        else:
+            print(f"{attack_desc} but freakin' fails, dude.")
 
 
 class MovementAction(ActionWithDirection):
-    def perform(self, engine, entity):
+    def perform(self):
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
@@ -82,7 +94,12 @@ class MovementAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self):
-        if self.blocking_entity:
+        if self.target_actor:
             return MeleeAction(self.entity, self.dir_x, self.dir_y).perform()
         else:
             return MovementAction(self.entity, self.dir_x, self.dir_y).perform()
+
+
+class WaitAction(Action):
+    def perform(self):
+        pass

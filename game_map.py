@@ -3,11 +3,13 @@ from __future__ import annotations
 import numpy as np
 from tcod.console import Console
 
-from typing import Iterable, Optional, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
+from entity import Actor
 import tile_types
 
 if TYPE_CHECKING:
+	from engine import Engine
 	from entity import Entity
 
 
@@ -26,6 +28,21 @@ class GameMap:
 		self.explored = np.full(
 			(width, height), fill_value=False, order="F"
 		)  # Tiles spilleren har udforsket
+
+	@property
+	def actors(self) -> Iterator[Actor]:
+		""" Iterate igennem kortet for at finde "levende" `Actor`s """
+		yield from (
+			entity
+			for entity in self.entities
+			if isinstance(entity, Actor) and entity.is_alive
+		)
+
+	def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
+		for actor in self.actors:
+			if actor.x == x and actor.y == y:
+				return actor
+		return None
 
 	def get_blocking_entity_at_location(self, location_x: int, location_y: int):
 		for entity in self.entities:
@@ -65,7 +82,11 @@ class GameMap:
 			default=tile_types.SHROUD,
 		)
 
-		for entity in self.entities:
+		entities_sorted_for_rendering = sorted(
+			self.entities, key=lambda x: x.render_order.value
+		)
+
+		for entity in entities_sorted_for_rendering:
 			# Tegn kun entities som er inden i FOV
 			if self.visible[entity.x, entity.y]:
 				console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)
