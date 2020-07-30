@@ -33,11 +33,6 @@ class Action:
         raise NotImplementedError
 
 
-class EscapeAction(Action):
-    def perform(self):
-        raise SystemExit(0)
-
-
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dir_x: int, dir_y: int):
         super().__init__(entity)
@@ -161,3 +156,8 @@ class ItemAction(Action):
     def perform(self):
         """Invoke the items ability, this action will be given to provide context."""
         self.item.consumable.activate(self)
+
+
+class DropItem(ItemAction):
+    def perform(self):
+        self.entity.inventory.drop(self.item)
