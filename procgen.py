@@ -65,6 +65,7 @@ def generate_dungeon(
 	map_width: int,
 	map_height: int,
 	max_monsters_per_room: int,
+	max_items_per_room: int,
 	engine: Engine,
 ) -> GameMap:
 	"""Genererer et Dungeon Map
@@ -106,14 +107,14 @@ def generate_dungeon(
 			for x, y in tunnel_between(rooms[-1].center, new_room.center):
 				dungeon.tiles[x, y] = tile_types.floor
 
-		place_entities(new_room, dungeon, max_monsters_per_room)
+		place_entities(new_room, dungeon, max_monsters_per_room, max_items_per_room)
 
 		rooms.append(new_room)
 
 	return dungeon
 
 
-def place_entities(room, dungeon, maximum_monsters):
+def place_entities(room, dungeon: GameMap, maximum_monsters: int, maximum_items: int):
 	"""Funktion som finder X og Y koordinater til placering og spawning af NPCer.
 
 	Hvis en `entity`s X/Y-koordinat ville være oven på en andens så vil den ikke spawnes.
@@ -125,6 +126,7 @@ def place_entities(room, dungeon, maximum_monsters):
 		maximum_monsters ([type]): [description]
 	"""
 	number_of_monsters = random.randint(0, maximum_monsters)
+	number_of_items = random.randint(0, maximum_items)
 
 	for _ in range(number_of_monsters):
 		# Note +/-1 for ikke at spawne entities inde i væg
@@ -136,6 +138,13 @@ def place_entities(room, dungeon, maximum_monsters):
 				entity_factories.orc.spawn(dungeon, x, y)
 			else:
 				entity_factories.troll.spawn(dungeon, x, y)
+
+	for i in range(number_of_items):
+		x = random.randint(room.pos_x + 1, room.room_width - 1)
+		y = random.randint(room.pos_y + 1, room.room_height - 1)
+
+		if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+			entity_factories.health_potion.spawn(dungeon, x, y)
 
 
 def tunnel_between(start, end):
