@@ -113,6 +113,30 @@ class WaitAction(Action):
         pass
 
 
+class PickUpAction(Action):
+    """ Pickup en `Item` og tilføj den til `Inventory` hvis der er plads. """
+    def __init__(self, entity):
+        super().__init__(entity)
+
+    def perform(self):
+        actor_location_x = self.entity.x
+        actor_location_y = self.entity.y
+        inventory = self.entity.inventory
+
+        for item in self.engine.game_map.items:
+            if actor_location_x == item.x and actor_location_y == item.y:
+                if len(inventory.items) >= inventory.capacity:
+                    raise exceptions.Impossible('Shitter\'s full.')
+
+                self.engine.game_map.entities.remove(item)
+                item.parent = self.entity.inventory
+                inventory.items.append(item)
+
+                self.engine.message_log.add_message(f"You picked up the {item.name}!",)
+                return
+        raise exceptions.Impossible("You attempt to pick up the air, to no avail.")
+
+
 class ItemAction(Action):
     def __init__(self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None):
         """En `Item`s action funktion

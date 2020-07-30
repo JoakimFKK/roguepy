@@ -7,6 +7,7 @@ from actions import (
 	Action,
 	BumpAction,
 	EscapeAction,
+	PickUpAction,
 	WaitAction,
 )
 
@@ -95,20 +96,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
 
 class MainGameEventHandler(EventHandler):
-	# def handle_events(self, context: tcod.context.Context):
-	# 	for event in tcod.event.wait():
-	# 		context.convert_event(event)
-
-	# 		action = self.dispatch(event)
-
-	# 		if action is None:
-	# 			continue
-
-	# 		action.perform()
-
-	# 		self.engine.handle_enemy_turns()
-	# 		self.engine.update_fov()
-
 	def ev_keydown(self, event):
 		""" Registering af key presses.
 		 Returnerer type `None` hvis invalid key press.
@@ -124,12 +111,14 @@ class MainGameEventHandler(EventHandler):
 			action = BumpAction(player, dir_x, dir_y)
 		elif key in WAIT_KEYS:
 			action = WaitAction(player)
-
+		# Exot the game
 		elif key == tcod.event.K_ESCAPE:
 			action = EscapeAction(player)
-
+		# Message Log
 		elif key == tcod.event.K_v:
 			self.engine.event_handler = HistoryViewer(self.engine)
+		elif key == tcod.event.K_g:
+			action = PickUpAction(player)
 
 		# Hvis en ikke valid tast blev trykket
 		return action

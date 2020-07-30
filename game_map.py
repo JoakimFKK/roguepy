@@ -5,12 +5,12 @@ from tcod.console import Console
 
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
-from entity import Actor
+from entity import Actor, Item
 import tile_types
 
 if TYPE_CHECKING:
 	from engine import Engine
-	from entity import Entity
+	from entity import Actor
 
 
 class GameMap:
@@ -47,6 +47,12 @@ class GameMap:
 			if actor.x == x and actor.y == y:
 				return actor
 		return None
+
+
+	@property
+	def items(self) -> Iterator[Item]:
+		yield from (entity for entity in self.entities if isinstance(entity, Item))
+
 
 	def get_blocking_entity_at_location(self, location_x: int, location_y: int):
 		for entity in self.entities:
