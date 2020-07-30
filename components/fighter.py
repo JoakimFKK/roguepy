@@ -38,7 +38,7 @@ class Fighter(BaseComponent):
 			death_message_color = color.player_die
 			self.engine.event_handler = GameOverEventHandler(self.engine)
 		else:
-			death_message = f"{self.entity.name}'s ancestors are smiling at them, {self.engine.player.name}, can you say the same?"
+			death_message = f"{self.parent.name}'s ancestors are smiling at them, {self.engine.player.name}, can you say the same?"
 			death_message_color = color.enemy_die
 
 		self.parent.char = '%'
@@ -46,7 +46,7 @@ class Fighter(BaseComponent):
 		self.parent.blocks_movement = False
 		self.parent.ai = None
 		self.parent.render_order = RenderOrder.CORPSE
-		self.parent.name = f"the fleshy prison of {self.entity.name}"
+		self.parent.name = f"a dead {self.parent.name}."
 
 		self.engine.message_log.add_message(death_message, death_message_color)
 

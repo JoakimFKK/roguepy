@@ -12,6 +12,7 @@ from actions import (
 
 import color
 import exceptions
+
 if TYPE_CHECKING:
 	from engine import Engine
 
@@ -58,10 +59,27 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 	def __init__(self, engine: Engine):
 		self.engine = engine
 
-	def handle_events(self, context: tcod.context.Context):
-		for event in tcod.event.wait():
-			context.convert_event(event)
-			self.dispatch(event)
+	def handle_events(self, event: tcod.event.Event):
+		self.handle_action(self.dispatch(event))
+
+	def handle_action(self, action: Optional[Action]) -> bool:
+		"""Handle actions returned from event methods.
+
+		Returns True if the action will advance a turn.
+		"""
+		if action is None:
+			return False
+
+		try:
+			action.perform()
+		except exceptions.Impossible as e:
+			self.engine.message_log.add_message(e.args[0], color.impossible)
+			return False  # Skip enemy turn on exception
+
+		self.engine.handle_enemy_turns()
+		self.engine.update_fov()
+		return True
+
 
 	def ev_quit(self, event: tcod.event.Quit):
 		""" Override af EventHandler.ev_quit, sørger for lukning af programmet. """
@@ -77,19 +95,19 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
 
 class MainGameEventHandler(EventHandler):
-	def handle_events(self, context: tcod.context.Context):
-		for event in tcod.event.wait():
-			context.convert_event(event)
+	# def handle_events(self, context: tcod.context.Context):
+	# 	for event in tcod.event.wait():
+	# 		context.convert_event(event)
 
-			action = self.dispatch(event)
+	# 		action = self.dispatch(event)
 
-			if action is None:
-				continue
+	# 		if action is None:
+	# 			continue
 
-			action.perform()
+	# 		action.perform()
 
-			self.engine.handle_enemy_turns()
-			self.engine.update_fov()
+	# 		self.engine.handle_enemy_turns()
+	# 		self.engine.update_fov()
 
 	def ev_keydown(self, event):
 		""" Registering af key presses.
@@ -118,15 +136,6 @@ class MainGameEventHandler(EventHandler):
 
 
 class GameOverEventHandler(EventHandler):
-	def handle_events(self, context: tcod.context.Context):
-		for event in tcod.event.wait():
-			action = self.dispatch(event)
-
-			if action is None:
-				continue
-
-			action.perform()
-
 	def ev_keydown(self, event):
 		action: Optional[Action] = None
 

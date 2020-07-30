@@ -85,8 +85,6 @@ def main():
                 # Then print the error to the message log.
                 engine.message_log.add_message(traceback.format_exc(), color.error)
 
-            engine.event_handler.handle_events(context)
-
 
 if __name__ == "__main__":
     main()

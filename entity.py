@@ -53,7 +53,7 @@ class Entity:
 
 	@property
 	def game_map(self):
-		return self.parent.gamemap
+		return self.parent.game_map
 
 	def spawn(self: T, game_map, x: int, y: int) -> T:
 		"""Spawner en kopi af instancen til en given position
