@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, TYPE_CHECKING
 
 import tcod.event
 
@@ -351,7 +351,7 @@ class SelectIndexHandler(AskUserEventHandler):
 
 	def ev_keydown(self, event) -> Optional[Action]:
 		""" Check for key movements or confirmation keys. """
-		key = event.SystemExit
+		key = event.sym
 		if key in MOVE_KEYS:
 			modifier = 1  # Holding modifier keys will speed up key movement
 			if event.mod & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
@@ -393,3 +393,45 @@ class LookHandler(SelectIndexHandler):
 	""" Let's the player look around using the keyboard. """
 	def on_index_selected(self, x, y) -> None:
 		self.engine.event_handler = MainGameEventHandler(self.engine)
+
+
+class SingleRangedAttackHandler(SelectIndexHandler):
+	""" Handles targeting of a single entity, only the targeted entity will be affected. """
+	def __init__(self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]):
+		super().__init__(engine)
+		self.callback = callback
+
+	def on_index_selected(self, x, y) -> Optional[Action]:
+		return self.callback((x, y))
+
+
+class AreaRangedAttackHandler(SelectIndexHandler):
+	""" Handles targeting an area within a given radius. Any entity within the area will be affected. """
+	def __init__(
+		self,
+		engine: Engine,
+		radius: int,
+		callback: Callable[[Tuple[int, int]], Optional[Action]],
+	):
+		super().__init__(engine)
+
+		self.radius = radius
+		self.callback = callback
+
+	def on_render(self, console):
+		super().on_render(console)
+
+		x, y = self.engine.mouse_location
+
+		# Draw a rectangle around teh targeted area, so the player can see the area affected.
+		console.draw_frame(
+			x=x - self.radius - 1,
+			y=y - self.radius - 1,
+			width=self.radius ** 2,
+			height=self.radius ** 2,
+			fg=color.red,
+			clear=False,
+		)
+
+	def on_index_selected(self, x, y):
+		return self.callback((x, y))
