@@ -6,7 +6,7 @@ from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from actions import EscapeAction, MovementAction
+from actions import MovementAction
 import exceptions
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
