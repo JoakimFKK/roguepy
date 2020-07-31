@@ -147,15 +147,10 @@ class MainGameEventHandler(EventHandler):
 
 class GameOverEventHandler(EventHandler):
 	def ev_keydown(self, event):
-		action: Optional[Action] = None
-
 		key = event.sym
-
 		if key == tcod.event.K_ESCAPE:
 			raise SystemExit(0)
 
-		# Hvis en ikke valid tast bliver trykket
-		return action
 
 
 
