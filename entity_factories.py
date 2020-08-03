@@ -15,7 +15,6 @@ player = Actor(
 	inventory=Inventory(capacity=26),
 )
 
-
 orc = Actor(
 	char='o',
 	color=(88, 220, 86),

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import color
-from input_handlers import GameOverEventHandler
 from components.base_component import BaseComponent
 from render_order import RenderOrder
 
@@ -36,7 +35,6 @@ class Fighter(BaseComponent):
 		if self.engine.player is self.parent:
 			death_message = "You have perished at your local Wall-Mart"
 			death_message_color = color.player_die
-			self.engine.event_handler = GameOverEventHandler(self.engine)
 		else:
 			death_message = f"{self.parent.name}'s ancestors are smiling at them, {self.engine.player.name}, can you say the same?"
 			death_message_color = color.enemy_die

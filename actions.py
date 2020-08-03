@@ -10,15 +10,15 @@ if TYPE_CHECKING:
 
 
 class Action:
+    """Base-class for Actions"""
     def __init__(self, entity: Actor):
         super().__init__()
         self.entity = entity
 
     @property
     def engine(self):
-        """ Returnerer `engine` til hvor `Action` hører til """
+        """ Returns the engine this action belongs to. """
         return self.entity.game_map.engine
-
 
     def perform(self):
         """Perform this action with the objects needed to determine its scope.
@@ -34,6 +34,7 @@ class Action:
 
 
 class ActionWithDirection(Action):
+    """Any action that requires a direction, such as bump, attack, etc."""
     def __init__(self, entity: Actor, dir_x: int, dir_y: int):
         super().__init__(entity)
 
@@ -60,6 +61,7 @@ class ActionWithDirection(Action):
 
 
 class MeleeAction(ActionWithDirection):
+    """Attack action, where an entity attempts to move into a different entity."""
     def perform(self):
         target = self.target_actor
 
@@ -82,6 +84,7 @@ class MeleeAction(ActionWithDirection):
 
 
 class MovementAction(ActionWithDirection):
+    """Action that attempts movement."""
     def perform(self):
         dest_x, dest_y = self.dest_xy
 
@@ -96,6 +99,7 @@ class MovementAction(ActionWithDirection):
 
 
 class BumpAction(ActionWithDirection):
+    """Action where entity attempts to move into a space that's occupied."""
     def perform(self):
         if self.target_actor:
             return MeleeAction(self.entity, self.dir_x, self.dir_y).perform()
@@ -104,13 +108,18 @@ class BumpAction(ActionWithDirection):
 
 
 class WaitAction(Action):
+    """Action where the entity does nothing."""
     def perform(self):
         pass
 
 
 class PickUpAction(Action):
-    """ Pickup en `Item` og tilføj den til `Inventory` hvis der er plads. """
-    def __init__(self, entity):
+    """Picks up the item the entity is standing on, if any."""
+    def __init__(self, entity: Actor):
+        """
+        Returns:
+            entity: The actor performing the action.
+        """
         super().__init__(entity)
 
     def perform(self):
@@ -127,19 +136,19 @@ class PickUpAction(Action):
                 item.parent = self.entity.inventory
                 inventory.items.append(item)
 
-                self.engine.message_log.add_message(f"You picked up the {item.name}!",)
+                self.engine.message_log.add_message(f"You picked up the {item.name}!", )
                 return
         raise exceptions.Impossible("You attempt to pick up the air, to no avail.")
 
 
 class ItemAction(Action):
     def __init__(self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None):
-        """En `Item`s action funktion
+        """Performs the action of a given `Item` object.
 
         Args:
-            entity (Actor): Entity der bruger Item
-            item (Item): `Item`et selv
-            target_xy (Optional[Tuple[int, int]], optional): Targetets X og Y position. Defaults to None.
+            entity: The actor using the item.
+            item:  The `Item` that is being used
+            target_xy: The affected tile-coordinates of the effect.
         """
         super().__init__(entity)
 
@@ -159,5 +168,6 @@ class ItemAction(Action):
 
 
 class DropItem(ItemAction):
+    """Drops the selected item from Inventory."""
     def perform(self):
         self.entity.inventory.drop(self.item)
