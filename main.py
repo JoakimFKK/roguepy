@@ -53,7 +53,7 @@ def main() -> None:
                 except Exception:  # Handle exceptions in game.
                     traceback.print_exc()
                     if isinstance(handler, input_handlers.EventHandler):
-                        handler.engine.message_log(
+                        handler.engine.message_log.add_message(
                             traceback.format_exc(),
                             color.error,
                         )
