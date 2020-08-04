@@ -7,6 +7,7 @@ import exceptions
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
+    from components import inventory
 
 
 class Action:
@@ -20,17 +21,13 @@ class Action:
         """ Returns the engine this action belongs to. """
         return self.entity.game_map.engine
 
-    def perform(self):
+    def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
 
             self.engine is the scope this action is being performed in
             self.entity is the object performing the action
-
-            Args:
-                engine (Engine): `engine` is the scope this action is being performed in.
-                entity (Entity): `entity` is the object performing the action.
             """
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class ActionWithDirection(Action):
@@ -82,20 +79,48 @@ class MeleeAction(ActionWithDirection):
         else:
             self.engine.message_log.add_message(f'{attack_desc} but critically misses.', attack_color)
 
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
+        # if self.entity == self.engine.player:
+        #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+
 
 class MovementAction(ActionWithDirection):
     """Action that attempts movement."""
     def perform(self):
         dest_x, dest_y = self.dest_xy
 
+        # If the player tries an illegal move, it should not cost them a turn.
+        # Enemies will lose a turn, otherwise a never ending loop is possible.
+        if self.entity == self.engine.player:
+            default_interval = 0
+        else:
+            default_interval = 1
+
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            raise exceptions.Impossible("That way is blocked.")  # Destination ikke indenfor mappet
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
+            # if self.entity == self.engine.player:
+            #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+            return
+            # raise exceptions.Impossible("That way is blocked.")  # Destination ikke indenfor mappet
+
         if not self.engine.game_map.tiles['walkable'][dest_x, dest_y]:
-            raise exceptions.Impossible("That way is blocked.")  # Destination er blokeret.
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
+            # if self.entity == self.engine.player:
+            #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+            return
+            # raise exceptions.Impossible("That way is blocked.")  # Destination er blokeret.
+
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            raise exceptions.Impossible("That way is blocked.")  # Destination er blokeret af en entity
+            self.engine.turn_queue.schedule(interval=default_interval, value=self.entity)
+            # if self.entity == self.engine.player:
+            #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+            return
+            # raise exceptions.Impossible("That way is blocked.")  # Destination er blokeret af en entity
 
         self.entity.move(self.dir_x, self.dir_y)
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
+        # if self.entity == self.engine.player:
+        #     print(f"pick - {self.engine.turn_queue.__repr__()}")
 
 
 class BumpAction(ActionWithDirection):
@@ -110,35 +135,45 @@ class BumpAction(ActionWithDirection):
 class WaitAction(Action):
     """Action where the entity does nothing."""
     def perform(self):
-        pass
+        self.engine.turn_queue.schedule(interval=2, value=self.entity)
+        # if self.entity == self.engine.player:
+        #     print(f"wait - {self.engine.turn_queue.__repr__()}")
 
 
 class PickUpAction(Action):
     """Picks up the item the entity is standing on, if any."""
     def __init__(self, entity: Actor):
-        """
-        Returns:
-            entity: The actor performing the action.
-        """
         super().__init__(entity)
 
-    def perform(self):
+    def perform(self) -> None:
         actor_location_x = self.entity.x
         actor_location_y = self.entity.y
-        inventory = self.entity.inventory
+        # inventory = self.entity.inventory
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if len(inventory.items) >= inventory.capacity:
-                    raise exceptions.Impossible('Shitter\'s full.')
+                # if len(inventory.items) >= inventory.capacity:
+                #     raise exceptions.Impossible('Shitter\'s full.')
+                item_added = self.entity.inventory.add_item(item)
 
-                self.engine.game_map.entities.remove(item)
-                item.parent = self.entity.inventory
-                inventory.items.append(item)
+                if item_added:
+                    self.engine.game_map.entities.remove(item)
+                    self.engine.message_log.add_message(f"You picked up the {item.name}!", )
+                    self.engine.turn_queue.schedule(interval=1, value=self.entity)
+                    # if self.entity == self.engine.player:
+                    #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+                    return
+                else:
+                    self.engine.message_log.add_message(f"Your inventory is full.")
+                    self.engine.turn_queue.schedule(interval=0, value=self.entity)
+                    # if self.entity == self.engine.player:
+                    #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+                    return
 
-                self.engine.message_log.add_message(f"You picked up the {item.name}!", )
-                return
-        raise exceptions.Impossible("You attempt to pick up the air, to no avail.")
+        self.engine.message_log.add_message(f"There is nothing here ot pick up.")
+        self.engine.turn_queue.schedule(interval=0, value=self.entity)
+        # if self.entity == self.engine.player:
+        #     print(f"pick - {self.engine.turn_queue.__repr__()}")
 
 
 class ItemAction(Action):
@@ -172,6 +207,10 @@ class DropItem(ItemAction):
     def perform(self):
         self.entity.inventory.drop(self.item)
 
+        self.engine.turn_queue.schedule(interval=1, value=self.entity)
+        # if self.entity == self.engine.player:
+        #     print(f"pick - {self.engine.turn_queue.__repr__()}")
+
 
 class TakeStairsAction(Action):
     def perform(self) -> None:
@@ -184,3 +223,5 @@ class TakeStairsAction(Action):
             )
         else:
             raise exceptions.Impossible("There are no stairs here.")
+
+

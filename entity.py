@@ -55,6 +55,9 @@ class Entity:
             self.parent = parent
             parent.entities.add(self)
 
+    def __repr__(self):
+        return self.name
+
     @property
     def game_map(self):
         return self.parent.game_map
@@ -75,6 +78,10 @@ class Entity:
         clone.x, clone.y = x, y
         clone.parent = game_map
         game_map.entities.add(clone)
+
+        if isinstance(self, Actor):
+            game_map.engine.turn_queue.schedule(1, clone)
+
         return clone
 
     def place(self, x, y, game_map: Optional[GameMap] = None):

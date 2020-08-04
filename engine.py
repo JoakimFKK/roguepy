@@ -6,13 +6,15 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 
-import exceptions
+from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 import render_functions
+from turn_queue import TurnQueue
 
 if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap, GameWorld
+    from input_handlers import EventHandler
 
 
 class Engine:
@@ -27,17 +29,21 @@ class Engine:
             event_handler (EventHandler): Gi'r jo sig selv.
             player (Entity): Godt nok, med lykke og held.
         """
+        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
+        self.turn_queue = TurnQueue()
 
     def handle_enemy_turns(self):
-        for entity in set(self.game_map.actors) - {self.player}:
-            if entity.ai:
-                try:
-                    entity.ai.perform()
-                except exceptions.Impossible:
-                    pass
+        while True:
+            ticket = self.turn_queue.next()
+            entity_to_act = ticket.value
+            if entity_to_act == self.player:
+                return
+
+            if entity_to_act.ai:
+                entity_to_act.ai.perform()
 
     def update_fov(self):
         """ Opdater `game_map` baseret på spillerens FOV"""

@@ -48,12 +48,12 @@ floor = new_tile(
     walkable=True,
     transparent=True,
     dark=(
-        ord(' '),  # `ord("")` returner int værdi af unicode
+        ord('.'),  # `ord("")` returner int værdi af unicode
         (255, 255, 255),
         (50, 50, 150)
     ),
     light=(
-        ord(' '),
+        ord('.'),
         (255, 255, 255),
         (200, 180, 50)
     ),
@@ -63,12 +63,12 @@ wall = new_tile(
     walkable=False,
     transparent=False,
     dark=(
-        ord(' '),
+        ord('#'),
         (255, 255, 255),
         (0, 0, 100)
     ),
     light=(
-        ord(' '),
+        ord('#'),
         (255, 255, 255),
         (130, 110, 50)
     ),

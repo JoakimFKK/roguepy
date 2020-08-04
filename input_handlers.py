@@ -145,14 +145,18 @@ class EventHandler(BaseEventHandler):
         Returns True if the action will advance a turn.
         """
         if action is None:
+            print("HANDLE ACTION IS NONE")
             return False
 
         try:
             action.perform()
+            # print("enPlayer acts")
         except exceptions.Impossible as e:
             self.engine.message_log.add_message(e.args[0], color.impossible)
             return False  # Skip enemy turn on exception
 
+
+        # print("enEnemies act")
         self.engine.handle_enemy_turns()
         self.engine.update_fov()
         return True
