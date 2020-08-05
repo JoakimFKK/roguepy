@@ -4,6 +4,14 @@ import traceback
 
 import tcod
 
+from consts import (
+SCREEN_WIDTH,
+SCREEN_HEIGHT,
+TILESHEET,
+TILESHEET_COL,
+TILESHEET_ROW,
+)
+
 import color
 import exceptions
 import setup_game
@@ -19,26 +27,23 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
 
 def main() -> None:
     """ TODO """
-    screen_width = 80  # X-Coordinate
-    screen_height = 50  # Y-Coordinate
-
     tileset = tcod.tileset.load_tilesheet(
-        "resources/tileset10x10.png",
-        32,
-        8,
-        tcod.tileset.CHARMAP_TCOD,
+        TILESHEET,
+        TILESHEET_COL,
+        TILESHEET_ROW,
+        tcod.tileset.CHARMAP_CP437,
     )
 
     handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
 
     with tcod.context.new_terminal(
-            screen_width,
-            screen_height,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
             tileset=tileset,
             title="What if *hits bong* we made a rogue-like?",
             vsync=True,
     ) as context:
-        root_console = tcod.Console(screen_width, screen_height,
+        root_console = tcod.Console(SCREEN_WIDTH, SCREEN_HEIGHT,
                                     order="F")  # `order="F"` sætter coordinat-systemet til `[x, y]`
         try:
             while True:

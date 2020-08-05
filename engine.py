@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from tcod.console import Console
 from tcod.map import compute_fov
+from tcod.constants import FOV_DIAMOND
 
 import exceptions
 from message_log import MessageLog
@@ -45,7 +46,9 @@ class Engine:
             self.game_map.tiles['transparent'],
             (self.player.x, self.player.y),
             radius=8,
+            algorithm=FOV_DIAMOND,
         )
+
         # Hvis en `tile` er synlig, sæt den til `explored`
         self.game_map.explored |= self.game_map.visible
 

@@ -74,3 +74,4 @@ class Level(BaseComponent):
         self.engine.message_log.add_message(
             "You think back on past relationships. Your resistance to pain increases."
         )
+        self.increase_level()
