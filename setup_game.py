@@ -36,8 +36,6 @@ def new_game() -> Engine:
 
     engine = Engine(player=player)
 
-    from FOOBAR import map_generation
-
     engine.game_world = GameWorld(
         engine=engine,
         max_rooms=MAX_ROOMS,
