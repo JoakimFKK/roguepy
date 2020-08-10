@@ -16,7 +16,7 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
 
     names = ", ".join(
         entity.name for entity in game_map.entities if entity.x == x and entity.y == y
-    )
+    )  # ", " vil blive indsat mellem names, og vil springe den sidste over.
 
     return names.capitalize()
 

@@ -5,11 +5,13 @@ import traceback
 import tcod
 
 from consts import (
-SCREEN_WIDTH,
-SCREEN_HEIGHT,
-TILESHEET,
-TILESHEET_COL,
-TILESHEET_ROW,
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    SAVE_GAME,
+    TITLE,
+    TILESHEET,
+    TILESHEET_COL,
+    TILESHEET_ROW,
 )
 
 import color
@@ -40,7 +42,7 @@ def main() -> None:
             SCREEN_WIDTH,
             SCREEN_HEIGHT,
             tileset=tileset,
-            title="What if *hits bong* we made a rogue-like?",
+            title=TITLE,
             vsync=True,
     ) as context:
         root_console = tcod.Console(SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -66,10 +68,10 @@ def main() -> None:
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit:  # Save and quit
-            save_game(handler, "savegame.sav")
+            save_game(handler, SAVE_GAME)
             raise
         except BaseException:  # Save on any other unexpected exception
-            save_game(handler, "savegame.sav")
+            save_game(handler, SAVE_GAME)
             raise
 
 

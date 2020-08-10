@@ -17,7 +17,7 @@ player = Actor(
 )
 
 orc = Actor(
-    char='o',
+    char='☻',
     color=(88, 220, 86),
     name='Orc',
     ai_cls=HostileEnemy,
@@ -37,29 +37,29 @@ troll = Actor(
 )
 
 health_potion = Item(
-    char='!',
+    char='¡',
     color=(127, 0, 255),
-    name="Harboe Sport",
+    name="Health Potion",
     consumable=consumable.HealingConsumable(amount=4),
 )
 
 lightning_scroll = Item(
-    char='~',
+    char='▬',
     color=(152, 60, 20),
     name="Scroll o'Lightning",
     consumable=consumable.LightningDamageConsumable(damage=20, maximum_range=5),
 )
 
 confusion_scroll = Item(
-    char='~',
+    char='▬',
     color=(207, 63, 255),
     name="Scroll o'Confusion",
     consumable=consumable.ConfusionConsumable(number_of_turns=10)
 )
 
 fireball_scroll = Item(
-    char='~',
+    char='▬',
     color=(255, 0, 0),
-    name="Scroll o'Warcrime",
-    consumable=consumable.FireballDamageConsumable(damage=100, radius=3)
+    name="Scroll o'Fireball",
+    consumable=consumable.FireballDamageConsumable(damage=30, radius=3)
 )

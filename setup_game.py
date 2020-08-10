@@ -10,41 +10,43 @@ from typing import Optional
 import tcod
 
 import color
+from consts import (
+    MAP_WIDTH,
+    MAP_HEIGHT,
+    ROOM_MAX_SIZE,
+    ROOM_MIN_SIZE,
+    MAX_ROOMS,
+    MAX_MONSTERS_PER_ROOM,
+    MAX_ITEMS_PER_ROOM,
+    MAIN_MENU_IMAGE,
+    SAVE_GAME,
+)
 from engine import Engine
 import entity_factories
 import input_handlers
 from game_map import GameWorld
 
-
 # Load the background image and remove the alpha channel
-background_image = tcod.image.load("resources/menu_background.png")[:, :, :3]  # RGB channels
+background_image = tcod.image.load(MAIN_MENU_IMAGE)[:, :, :3]  # RGB channels
 
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance"""
-    map_width = 80
-    map_height = 43
-
-    room_max_size = 10
-    room_min_size = 6
-    max_rooms = 30
-
-    max_monsters_per_room = 2
-    max_items_per_room = 2
-
     player = copy.deepcopy(entity_factories.player)
 
     engine = Engine(player=player)
 
+    from FOOBAR import map_generation
+
     engine.game_world = GameWorld(
         engine=engine,
-        max_rooms=max_rooms,
-        room_min_size=room_min_size,
-        room_max_size=room_max_size,
-        map_width=map_width,
-        map_height=map_height,
-        max_monsters_per_room=max_monsters_per_room,
-        max_items_per_room=max_items_per_room,
+        max_rooms=MAX_ROOMS,
+        room_min_size=ROOM_MIN_SIZE,
+        room_max_size=ROOM_MAX_SIZE,
+        map_width=MAP_WIDTH,
+        map_height=MAP_HEIGHT,
+        max_monsters_per_room=MAX_MONSTERS_PER_ROOM,
+        max_items_per_room=MAX_ITEMS_PER_ROOM,
     )
     engine.game_world.generate_floor()
     engine.update_fov()
@@ -88,7 +90,7 @@ class MainMenu(input_handlers.BaseEventHandler):
 
         menu_width = 24
         for i, text in enumerate(
-            ["[N] Play a new game", "[C] Continue last save", "[Q] Quit", ]
+                ["[N] Play a new game", "[C] Continue last save", "[Q] Quit", ]
         ):
             console.print(
                 console.width // 2,
@@ -108,7 +110,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         elif event.sym == tcod.event.K_c:
             # If the player selects "Continue last save"
             try:
-                return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
+                return input_handlers.MainGameEventHandler(load_game(SAVE_GAME))
             except FileNotFoundError:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
             except Exception as exc:  # Unexpected error

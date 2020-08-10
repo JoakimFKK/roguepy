@@ -20,15 +20,15 @@ if TYPE_CHECKING:
     from entity import Item
 
 MOVE_KEYS = {
-    # Arrow keys.
-    tcod.event.K_UP: (0, -1),
-    tcod.event.K_DOWN: (0, 1),
-    tcod.event.K_LEFT: (-1, 0),
-    tcod.event.K_RIGHT: (1, 0),
-    tcod.event.K_HOME: (-1, -1),
-    tcod.event.K_END: (-1, 1),
-    tcod.event.K_PAGEUP: (1, -1),
-    tcod.event.K_PAGEDOWN: (1, 1),
+    # # Arrow keys.
+    # tcod.event.K_UP: (0, -1),
+    # tcod.event.K_DOWN: (0, 1),
+    # tcod.event.K_LEFT: (-1, 0),
+    # tcod.event.K_RIGHT: (1, 0),
+    # tcod.event.K_HOME: (-1, -1),
+    # tcod.event.K_END: (-1, 1),
+    # tcod.event.K_PAGEUP: (1, -1),
+    # tcod.event.K_PAGEDOWN: (1, 1),
     # Numpad keys.
     tcod.event.K_KP_1: (-1, 1),
     tcod.event.K_KP_2: (0, 1),
@@ -38,15 +38,15 @@ MOVE_KEYS = {
     tcod.event.K_KP_7: (-1, -1),
     tcod.event.K_KP_8: (0, -1),
     tcod.event.K_KP_9: (1, -1),
-    # Vi keys.
-    tcod.event.K_h: (-1, 0),
-    tcod.event.K_j: (0, 1),
-    tcod.event.K_k: (0, -1),
-    tcod.event.K_l: (1, 0),
-    tcod.event.K_y: (-1, -1),
-    tcod.event.K_u: (1, -1),
-    tcod.event.K_b: (-1, 1),
-    tcod.event.K_n: (1, 1),
+    # # Vi keys.
+    # tcod.event.K_h: (-1, 0),
+    # tcod.event.K_j: (0, 1),
+    # tcod.event.K_k: (0, -1),
+    # tcod.event.K_l: (1, 0),
+    # tcod.event.K_y: (-1, -1),
+    # tcod.event.K_u: (1, -1),
+    # tcod.event.K_b: (-1, 1),
+    # tcod.event.K_n: (1, 1),
 }
 
 CURSOR_Y_KEYS = {
@@ -442,8 +442,7 @@ class SelectIndexHandler(AskUserEventHandler):
 
 class LookHandler(SelectIndexHandler):
     """ Let's the player look around using the keyboard. """
-
-    def on_index_selected(self, x, y) -> None:
+    def on_index_selected(self, x, y):
         return MainGameEventHandler(self.engine)
 
 
@@ -537,6 +536,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
             y=y + 5,
             string=f"Defense: {self.engine.player.fighter.defense}"
         )
+
 
 class LevelUpEventHandler(AskUserEventHandler):
     TITLE = "Level Up"
