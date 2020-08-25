@@ -42,7 +42,12 @@ def new_tile(
 
 
 # SHROUD for ikke opdagede `tiles`
-SHROUD = np.array((ord(' '), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
+SHROUD = np.array(
+    (ord(' '),
+    (255, 255, 255),
+    (0, 0, 0)),
+    dtype=graphic_dt
+)
 
 floor = new_tile(
     walkable=True,
